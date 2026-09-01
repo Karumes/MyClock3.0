@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karumes</title>
+  <link rel="preload" href="fonts/Quicksand-Bold.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/Segoe UI Bold.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/Poppins-Regular.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/Oswald-Regular.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/Scrapitup-EEK4.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/Kbsticktoit-vJ3M.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/GamjaFlower-Regular.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/CupcakePartyDemo-46xK.ttf" as="font" type="font/truetype" crossorigin />
+  <link rel="preload" href="fonts/OblataDisplayRegular-Zp8o8.otf" as="font" type="font/opentype" crossorigin />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="platform" class="platform-shell">
+    <header class="topbar">
+      <button id="brand-btn" class="brand-mark" type="button" aria-label="Karumes home">
+        <img src="Karumes Logo.png" alt="Logo" />
+      </button>
+      <div class="topbar-actions"></div>
+    </header>
+
+    <section id="library-section" class="section active">
+      <div id="clock-grid" class="clock-grid" aria-label="Clock previews"></div>
+    </section>
+  </main>
+
+  <section id="saver" class="saver hidden" aria-label="Selected clock">
+    <canvas id="clockCanvas"></canvas>
+    <div id="saver-actions" class="saver-actions">
+      <button id="home-btn" type="button" aria-label="Back to Karumes"></button>
+      <button id="settings-btn" type="button" aria-label="Customize clock">
+        <img src="setting.png" alt="Settings">
+      </button>
+    </div>
+  </section>
+
+  <aside id="settings-panel" class="settings-panel hidden" aria-label="Clock settings">
+    <div class="settings-head">
+      <span id="settings-title">Clock</span>
+      <button id="close-settings" type="button" aria-label="Close settings"></button>
+    </div>
+
+    <div class="settings-grid">
+      <div class="settings-color" data-setting="primary" data-color-target="font-custom-color">
+        <span>Main</span>
+        <div class="color-swatches" data-swatches="primary"></div>
+        <input id="font-custom-color" type="color" class="hidden-color-input" />
+      </div>
+      <div class="settings-color" data-setting="colon" data-color-target="colon-custom-color">
+        <span>Accent</span>
+        <div class="color-swatches" data-swatches="colon"></div>
+        <input id="colon-custom-color" type="color" class="hidden-color-input" />
+      </div>
+      <div class="settings-color" data-setting="card" data-color-target="card-custom-color">
+        <span>Surface</span>
+        <div class="color-swatches" data-swatches="card"></div>
+        <input id="card-custom-color" type="color" class="hidden-color-input" />
+      </div>
+    </div>
+
+    <div class="settings-row" data-setting="font">
+      <span>Font</span>
+      <div class="custom-select-wrapper">
+        <div id="custom-font-select" class="custom-select-trigger">Font 1</div>
+        <div id="custom-font-options" class="custom-select-options hidden">
+          <div class="custom-option" data-value="rounded">Font 1</div>
+          <div class="custom-option" data-value="modern">Font 2</div>
+          <div class="custom-option" data-value="mono">Font 3</div>
+          <div class="custom-option" data-value="condensed">Font 4</div>
+          <div class="custom-option" data-value="serif">Font 5</div>
+          <div class="custom-option" data-value="display">Font 6</div>
+          <div class="custom-option" data-value="sans">Font 7</div>
+          <div class="custom-option" data-value="editorial">Font 8</div>
+          <div class="custom-option" data-value="tech">Font 9</div>
+        </div>
+      </div>
+      <input type="hidden" id="font-family-select" value="rounded" />
+    </div>
+
+    <div class="settings-row" data-setting="difficulty">
+      <span>Difficulty</span>
+      <div class="custom-select-wrapper">
+        <div id="custom-difficulty-select" class="custom-select-trigger">Easy</div>
+        <div id="custom-difficulty-options" class="custom-select-options hidden">
+          <div class="custom-difficulty-option" data-value="easy">Easy</div>
+          <div class="custom-difficulty-option" data-value="medium">Medium</div>
+          <div class="custom-difficulty-option" data-value="hard">Hard</div>
+          <div class="custom-difficulty-option" data-value="chaos">Chaos</div>
+        </div>
+      </div>
+      <input type="hidden" id="difficulty-select" value="easy" />
+    </div>
+
+    <!-- 12/24 Hour Format Control -->
+    <div class="settings-row" data-setting="hourFormat">
+      <span>Format</span>
+      <div class="custom-select-wrapper">
+        <div id="custom-format-select" class="custom-select-trigger">24-Hour</div>
+        <div id="custom-format-options" class="custom-select-options hidden">
+          <div class="custom-format-option" data-value="24">24-Hour</div>
+          <div class="custom-format-option" data-value="12">12-Hour</div>
+        </div>
+      </div>
+      <input type="hidden" id="format-select" value="24" />
+    </div>
+
+    <!-- AM/PM Toggle -->
+    <div class="settings-row" data-setting="showAmPm">
+      <span>Show AM/PM</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="ampm-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Date Toggle -->
+    <div class="settings-row" data-setting="showDate">
+      <span>Show Date</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="date-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Day of Week Toggle -->
+    <div class="settings-row" data-setting="showDay">
+      <span>Show Day</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="day-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-row" data-setting="showSeconds">
+      <span>Show Seconds</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="seconds-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    
+    <div class="settings-row" data-setting="showMidline">
+      <span>Show Midline</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="midline-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-row" data-setting="size">
+      <span>Clock size</span>
+      <input id="clock-size-scale" type="range" min="0.55" max="2.5" step="0.05" value="0.5" />
+    </div>
+
+  </aside>
+  
+  <script src="clocks/clock-definitions.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

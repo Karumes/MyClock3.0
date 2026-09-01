@@ -1,0 +1,40 @@
+{
+"name": "myclock",
+"version": "1.0.0",
+"main": "main.js",
+"scripts": {
+ "start": "electron .",
+ "pack": "electron-builder --dir",
+ "dist": "electron-builder"
+},
+"keywords": [],
+"author": "",
+"license": "ISC",
+"description": "A local Electron clock selection platform with eight customizable clock modes.",
+"dependencies": {},
+"devDependencies": {
+ "electron": "^38.1.0",
+ "electron-builder": "^24.13.3"
+},
+"build": {
+ "appId": "com.karumes.clock",
+ "productName": "KarumesClock",
+ "directories": {
+   "output": "dist"
+ },
+ "win": {
+   "icon": "build/icon.ico",
+   "target": [
+     "nsis"
+   ],
+   "requestedExecutionLevel": "asInvoker"
+ },
+ "nsis": {
+   "oneClick": false,
+   "allowToChangeInstallationDirectory": true,
+   "createDesktopShortcut": true,
+   "createStartMenuShortcut": true,
+   "shortcutName": "Karumes Clock"
+ }
+}
+}
