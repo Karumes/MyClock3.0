@@ -2,7 +2,9 @@
   const state = {
     chars: null,
     minuteKey: "",
-    rotations: [0, 0, 0, 0],
+    rotations: [0, 0, 0, 0],       
+    prevRotations: [0, 0, 0, 0],   
+    rotationAnimStart: 0,          
     anims: [null, null, null, null],
   };
 
@@ -72,13 +74,13 @@
     ctx.restore();
   }
 
-  function drawAnimFrameTo(ctx, index, x, y, anim, color, font, h, nowMs) {
+  function drawAnimFrameTo(ctx, index, x, y, anim, color, font, h, nowMs, currentRot) {
     const raw = Math.min(1, (nowMs - anim.startedAt) / 700);
     const t = easeOutExpo(raw);
     const distance = h * 0.72;
 
-    drawDigitTo(ctx, x, y + t * distance, anim.from, state.rotations[index], color, font, 1 - t);
-    drawDigitTo(ctx, x, y - distance + t * distance, anim.to, state.rotations[index], color, font, t);
+    drawDigitTo(ctx, x, y + t * distance, anim.from, currentRot, color, font, 1 - t);
+    drawDigitTo(ctx, x, y - distance + t * distance, anim.to, currentRot, color, font, t);
 
     if (raw >= 1) {
       state.chars[index] = anim.to;
@@ -142,22 +144,36 @@
         getRandomRotation(),
         getRandomRotation()
       ];
+      state.prevRotations = state.rotations.slice(); 
+      state.rotationAnimStart = nowMs;
     }
 
     if (state.minuteKey !== minuteKey) {
       state.minuteKey = minuteKey;
+      state.prevRotations = state.rotations.slice(); 
       state.rotations = [
         getRandomRotation(),
         getRandomRotation(),
         getRandomRotation(),
         getRandomRotation()
       ];
+      state.rotationAnimStart = nowMs; 
     }
     chars.forEach((c, i) => {
       if (state.chars[i] !== c && !state.anims[i]) {
         state.anims[i] = { from: state.chars[i], to: c, startedAt: nowMs };
       }
     });
+
+    const rotElapsed = nowMs - state.rotationAnimStart;
+    const rotProgress = Math.min(1, rotElapsed / 700);
+    const rotEased = easeOutExpo(rotProgress);
+
+    const getRot = (i) => {
+      const prev = state.prevRotations[i];
+      const target = state.rotations[i];
+      return prev + (target - prev) * rotEased;
+    };
 
     const family = opts.fontFamily || '"Fredoka","M PLUS Rounded 1c","Nunito",sans-serif';
     
@@ -193,9 +209,9 @@
     for (let i = 0; i < 4; i++) {
       const { canvas: cv, ctx: oc } = getOffscreen(`ch${i}`, pw, ph);
       if (state.anims[i]) {
-        drawAnimFrameTo(oc, i, positions[i], y, state.anims[i], colors[i], font, ph, nowMs);
+        drawAnimFrameTo(oc, i, positions[i], y, state.anims[i], colors[i], font, ph, nowMs, getRot(i));
       } else {
-        drawDigitTo(oc, positions[i], y, state.chars[i], state.rotations[i], colors[i], font);
+        drawDigitTo(oc, positions[i], y, state.chars[i], getRot(i), colors[i], font);
       }
       charScreens.push(cv);
     }
