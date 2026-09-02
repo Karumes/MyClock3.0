@@ -111,7 +111,10 @@
     const startY = cy - panelH / 2;
 
     const weight = 760;
-    const family = '"Segoe UI"';
+    
+    // 【修正】システムの"Segoe UI"ではなく、先行ロード済みのローカルフォント"font-2"（Segoe UI Bold）に固定
+    const family = '"font-2"';
+    
     const offset = Math.round(panelH * 0.145);
     const globalDrop = Math.round(panelH * 0.085);
     
