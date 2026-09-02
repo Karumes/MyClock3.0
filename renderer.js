@@ -41,6 +41,7 @@ const state = {
     showDay: false,
     showSeconds: true,
     showMidline: true,
+    showWave: true, // 【重要：初期設定プロファイルに波の状態を追加】
     compiledOptions: null,
   })),
 };
@@ -85,6 +86,7 @@ function updateCompiledOptions(index) {
     showDay: !!profile.showDay,
     showSeconds: profile.showSeconds !== false,
     showMidline: profile.showMidline !== false,
+    showWave: profile.showWave !== false, // 【重要：オプション構築に波の状態を追加】
     clock6Speed: 0.42,
     fontMode: "solid",
   };
@@ -158,6 +160,8 @@ const dateToggle = document.getElementById("date-toggle");
 const dayToggle = document.getElementById("day-toggle");
 const secondsToggle = document.getElementById("seconds-toggle");
 const midlineToggle = document.getElementById("midline-toggle");
+// 【重要】DOM取得部に wave-toggle を追加
+const waveToggle = document.getElementById("wave-toggle");
 const sizeScaleInput = document.getElementById("clock-size-scale");
 const renderErrors = new Set();
 
@@ -259,8 +263,6 @@ function renderClock(ctx, canvas, index, now) {
   
   const sizeScale = Number(profile.sizeScale) || 1;
   
-  // 【絶対歪み防止】画面の最小寸法（Math.min）を基準に大きさを算出
-  // これにより、縦画面（スマホ）でも横画面（テレビ）でも絶対にはみ出さず、比率を崩さず完璧にフィットします。
   const referenceDim = 820;
   const currentDim = Math.min(w, h);
   const baseSize = clock.size * (currentDim / referenceDim);
@@ -547,8 +549,7 @@ function syncCustomFormatDropdownUI(val) {
   }
 }
 
-// 【最適化・一元化】AM/PMボタンの状態・クラス制御を1つの関数に完全集約
-// さらに.closestを廃止し、セキュアでピンポイントなdocument.querySelectorでの要素書き換えに修正
+// 【絶対歪み・バグ防止】AM/PMトグルの状態・クラス制御を1つの関数に完全集約
 function syncAmPmToggleState(formatVal) {
   const row = document.querySelector('[data-setting="showAmPm"]');
   const toggle = row?.querySelector('.toggle-switch');
@@ -598,6 +599,10 @@ function openSettings() {
   if (midlineToggle) {
     midlineToggle.checked = profile.showMidline !== false;
   }
+  // 【重要】設定を開いた瞬間のトグルのチェック状態を復元
+  if (waveToggle) {
+    waveToggle.checked = profile.showWave !== false;
+  }
 
   if (sizeScaleInput) {
     sizeScaleInput.setAttribute("min", String(minSize));
@@ -642,6 +647,10 @@ function updateProfileFromControls() {
   }
   if (midlineToggle) {
     profile.showMidline = midlineToggle.checked;
+  }
+  // 【重要】UIから波打ち（showWave）のトグル値を読み込んでプロファイルに反映
+  if (waveToggle) {
+    profile.showWave = waveToggle.checked;
   }
   profile.sizeScale = Number(sizeScaleInput.value);
   
@@ -785,7 +794,7 @@ function initEvents() {
         customFormatOptions.classList.add("hidden");
         customFormatTrigger.classList.remove("active");
         
-        // 【修正】ドロップダウン選択時に、共通同期関数を1ミリ秒の遅延もなく即座に実行
+        // 【絶対バグ防止】共通同期関数を即時に実行
         syncAmPmToggleState(val);
 
         updateProfileFromControls();
@@ -802,7 +811,8 @@ function initEvents() {
     if (customFormatTrigger) customFormatTrigger.classList.remove("active");
   });
   
-  [fontInput, colonInput, cardInput, fontSelect, difficultySelect, sizeScaleInput, formatSelect, ampmToggle, dateToggle, dayToggle, secondsToggle, midlineToggle].forEach((input) => {
+  // 【重要】波打ち用トグル「waveToggle」を変更監視対象（自動更新）配列に追加
+  [fontInput, colonInput, cardInput, fontSelect, difficultySelect, sizeScaleInput, formatSelect, ampmToggle, dateToggle, dayToggle, secondsToggle, midlineToggle, waveToggle].forEach((input) => {
     if (input) {
       input.addEventListener("input", updateProfileFromControls);
       input.addEventListener("change", updateProfileFromControls);

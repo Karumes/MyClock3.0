@@ -112,7 +112,6 @@
     ctx.restore();
   }
 
-  // 【修正】固定フォント（JetBrains Mono）の指定を廃止し、引数で渡された「family」を適用するように変更
   function drawSeparator(ctx, x, y, char, color, fontSize, family) {
     ctx.save();
     ctx.fillStyle = color;
@@ -201,6 +200,13 @@
     const colon1X = (xForIndex(1) + xForIndex(2)) / 2;
     const colon2X = (xForIndex(3) + xForIndex(4)) / 2;
 
+    // 【修正】options.showWave がオフ（false）の時は、即座にオフセット 0 を返して直列に整列
+    const getWaveOffset = (colIndex) => {
+      if (colIndex >= 5 || !options.showWave) return 0; 
+      const wavePhase = now.getMinutes() * 1.15; 
+      return Math.sin((colIndex * 1.25) + wavePhase) * (fontSize * 0.22); 
+    };
+
     for (let i = 0; i < digits.length; i += 1) {
       const colState = columnState[i];
       if (colState.shown === null) colState.shown = digits[i];
@@ -212,6 +218,8 @@
     for (let i = 0; i < digits.length; i += 1) {
       const x = xForIndex(i);
       const colState = columnState[i];
+      
+      const colY = centerY + getWaveOffset(i);
 
       if (i === 5) {
         const seconds = now.getSeconds();
@@ -232,14 +240,14 @@
             }
           }
         }
-        drawContinuousColumn(ctx, x, centerY, digitHeight, baseColor, fontSize, family, now, i, h);
+        drawContinuousColumn(ctx, x, colY, digitHeight, baseColor, fontSize, family, now, i, h);
         colState.anim = null;
         continue;
       }
 
       if (colState.anim) {
         const progress = Math.min(1, (nowMs - colState.anim.startedAt) / animDuration);
-        drawDropColumn(ctx, x, centerY, colState.anim.from, colState.anim.to, progress, baseColor, fontSize, family, h, sizeScale, i);
+        drawDropColumn(ctx, x, colY, colState.anim.from, colState.anim.to, progress, baseColor, fontSize, family, h, sizeScale, i);
         if (progress >= 1) {
           if (colState.anim.from !== null && colState.anim.from !== undefined) {
             columnRotations[i][colState.anim.from] = getRandomRotation();
@@ -248,13 +256,15 @@
           colState.anim = null;
         }
       } else {
-        drawStaticColumn(ctx, x, centerY, colState.shown, baseColor, fontSize, family, i);
+        drawStaticColumn(ctx, x, colY, colState.shown, baseColor, fontSize, family, i);
       }
     }
 
-    // 【修正】セパレーターの描画呼び出し時に「family」を引数として引き渡すように変更
-    drawSeparator(ctx, colon1X, centerY, ":", baseColor, fontSize, family);
-    drawSeparator(ctx, colon2X, centerY, ".", baseColor, fontSize, family);
+    const colon1Y = centerY + (getWaveOffset(1) + getWaveOffset(2)) / 2;
+    const colon2Y = centerY + (getWaveOffset(3) + getWaveOffset(4)) / 2;
+
+    drawSeparator(ctx, colon1X, colon1Y, ":", baseColor, fontSize, family);
+    drawSeparator(ctx, colon2X, colon2Y, ".", baseColor, fontSize, family);
 
     if (options.showAmPm) {
       const ampm = now.getHours() >= 12 ? "PM" : "AM";
@@ -266,7 +276,7 @@
       ctx.textBaseline = "middle";
       
       const ampmX = xForIndex(0) - digitWidth * 0.65;
-      const ampmY = centerY - fontSize * 0.32;
+      const ampmY = (centerY + getWaveOffset(0)) - fontSize * 0.32;
       
       ctx.fillText(ampm, ampmX, ampmY);
       ctx.restore();
