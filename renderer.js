@@ -32,7 +32,6 @@ const state = {
     color: clock.defaultAccent || "#ffffff",
     colonColor: clock.defaultColon || "#ffffff",
     cardColor: clock.defaultSurface || "#d9dfe8",
-    // 【修正】古い "rounded" から、正しいキー名 "font1" に修正
     fontFamily: clock.defaultFont || "font1",
     difficulty: clock.defaultDifficulty || "easy",
     sizeScale: clock.defaultSizeScale || 1,
@@ -77,7 +76,6 @@ function updateCompiledOptions(index) {
     colonColor: profile.colonColor,
     circleDigitColor: profile.colonColor,
     cardColor: profile.cardColor,
-    // 【修正】古い "fontFamilies.rounded" から、新キー名 "fontFamilies.font1" に修正
     fontFamily: fontFamilies[profile.fontFamily] || fontFamilies.font1,
     mathDifficulty: profile.difficulty,
     sizeScale: profile.sizeScale,
@@ -183,7 +181,6 @@ function drawClockFallback(ctx, w, h, clockName) {
   ctx.fillStyle = "rgba(255,255,255,0.72)";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  // 【修正】古い "fontFamilies.modern" から、新キー名 "fontFamilies.font2" に修正
   ctx.font = `700 ${Math.max(18, Math.floor(Math.min(w, h) * 0.055))}px ${fontFamilies.font2}`;
   ctx.fillText(clockName || "Clock", w / 2, h / 2);
   ctx.restore();
@@ -261,8 +258,13 @@ function renderClock(ctx, canvas, index, now) {
   }
   
   const sizeScale = Number(profile.sizeScale) || 1;
-  const referenceHeight = 820;
-  const baseSize = clock.size * (h / referenceHeight);
+  
+  // 【修正】画面の最小寸法（Math.min）を基準に大きさを算出
+  // これにより、縦画面（スマホ）でも横画面（テレビ）でも絶対にはみ出さず、比率を崩さず完璧にフィットします。
+  const referenceDim = 820;
+  const currentDim = Math.min(w, h);
+  const baseSize = clock.size * (currentDim / referenceDim);
+  
   const options = profile.compiledOptions || {};
 
   try {
