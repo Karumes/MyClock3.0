@@ -68,18 +68,20 @@
       <div class="custom-select-wrapper">
         <div id="custom-font-select" class="custom-select-trigger">Font 1</div>
         <div id="custom-font-options" class="custom-select-options hidden">
-          <div class="custom-option" data-value="rounded">Font 1</div>
-          <div class="custom-option" data-value="modern">Font 2</div>
-          <div class="custom-option" data-value="mono">Font 3</div>
-          <div class="custom-option" data-value="condensed">Font 4</div>
-          <div class="custom-option" data-value="serif">Font 5</div>
-          <div class="custom-option" data-value="display">Font 6</div>
-          <div class="custom-option" data-value="sans">Font 7</div>
-          <div class="custom-option" data-value="editorial">Font 8</div>
-          <div class="custom-option" data-value="tech">Font 9</div>
+          <!-- 【修正】data-value の値を新しいキー名に完全に同期 -->
+          <div class="custom-option" data-value="font1">Font 1</div>
+          <div class="custom-option" data-value="font2">Font 2</div>
+          <div class="custom-option" data-value="font3">Font 3</div>
+          <div class="custom-option" data-value="font4">Font 4</div>
+          <div class="custom-option" data-value="font5">Font 5</div>
+          <div class="custom-option" data-value="font6">Font 6</div>
+          <div class="custom-option" data-value="font7">Font 7</div>
+          <div class="custom-option" data-value="font8">Font 8</div>
+          <div class="custom-option" data-value="font9">Font 9</div>
         </div>
       </div>
-      <input type="hidden" id="font-family-select" value="rounded" />
+      <!-- 【修正】初期選択値を font1 に変更 -->
+      <input type="hidden" id="font-family-select" value="font1" />
     </div>
 
     <div class="settings-row" data-setting="difficulty">

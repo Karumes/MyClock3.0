@@ -112,13 +112,13 @@
     ctx.restore();
   }
 
-  function drawSeparator(ctx, x, y, char, color, fontSize) {
+  // 【修正】固定フォント（JetBrains Mono）の指定を廃止し、引数で渡された「family」を適用するように変更
+  function drawSeparator(ctx, x, y, char, color, fontSize, family) {
     ctx.save();
     ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const fixedFamily = '"JetBrains Mono", "SFMono-Regular", monospace';
-    ctx.font = `700 ${Math.floor(fontSize * 0.68)}px ${fixedFamily}`;
+    ctx.font = `700 ${Math.floor(fontSize * 0.68)}px ${family}`;
     ctx.fillText(char, x, y);
     ctx.restore();
   }
@@ -252,8 +252,9 @@
       }
     }
 
-    drawSeparator(ctx, colon1X, centerY, ":", baseColor, fontSize);
-    drawSeparator(ctx, colon2X, centerY, ".", baseColor, fontSize);
+    // 【修正】セパレーターの描画呼び出し時に「family」を引数として引き渡すように変更
+    drawSeparator(ctx, colon1X, centerY, ":", baseColor, fontSize, family);
+    drawSeparator(ctx, colon2X, centerY, ".", baseColor, fontSize, family);
 
     if (options.showAmPm) {
       const ampm = now.getHours() >= 12 ? "PM" : "AM";

@@ -1,13 +1,13 @@
 const fontFamilies = {
-  rounded: '"font-1"',
-  modern: '"font-2"',
-  mono: '"font-3"',
-  condensed: '"font-4"',
-  serif: '"font-5"',   
-  display: '"font-6"',      
-  sans: '"font-7"',
-  editorial: '"font-8"',    
-  tech: '"font-9"',
+  font1: '"font-1"',
+  font2: '"font-2"',
+  font3: '"font-3"',
+  font4: '"font-4"',
+  font5: '"font-5"',   
+  font6: '"font-6"',      
+  font7: '"font-7"',
+  font8: '"font-8"',    
+  font9: '"font-9"',
 };
 
 const colorPresets = {
@@ -32,7 +32,8 @@ const state = {
     color: clock.defaultAccent || "#ffffff",
     colonColor: clock.defaultColon || "#ffffff",
     cardColor: clock.defaultSurface || "#d9dfe8",
-    fontFamily: clock.defaultFont || "rounded",
+    // 【修正】新キーの font1 にフォールバックを修正
+    fontFamily: clock.defaultFont || "font1",
     difficulty: clock.defaultDifficulty || "easy",
     sizeScale: clock.defaultSizeScale || 1,
     hourFormat: "24",
@@ -76,7 +77,8 @@ function updateCompiledOptions(index) {
     colonColor: profile.colonColor,
     circleDigitColor: profile.colonColor,
     cardColor: profile.cardColor,
-    fontFamily: fontFamilies[profile.fontFamily] || fontFamilies.rounded,
+    // 【修正】新キーの fontFamilies.font1 にフォールバックを修正
+    fontFamily: fontFamilies[profile.fontFamily] || fontFamilies.font1,
     mathDifficulty: profile.difficulty,
     sizeScale: profile.sizeScale,
     hourFormat: profile.hourFormat || "24",
@@ -181,7 +183,8 @@ function drawClockFallback(ctx, w, h, clockName) {
   ctx.fillStyle = "rgba(255,255,255,0.72)";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 ${Math.max(18, Math.floor(Math.min(w, h) * 0.055))}px ${fontFamilies.modern}`;
+  // 【修正】新キーの fontFamilies.font2 にフォールバックを修正
+  ctx.font = `700 ${Math.max(18, Math.floor(Math.min(w, h) * 0.055))}px ${fontFamilies.font2}`;
   ctx.fillText(clockName || "Clock", w / 2, h / 2);
   ctx.restore();
 }
@@ -776,7 +779,7 @@ function initEvents() {
         } else {
           ampmToggle.disabled = false;
           ampmToggle.closest('.toggle-switch')?.classList.remove("disabled-toggle");
-          ampmToggle.closest('[data-setting="showAmPm"]')?.classList.remove("disabled-row");
+          ampmToggle.closest('[data-setting="showAmPm"]')?.classList.add("disabled-row");
         }
 
         updateProfileFromControls();

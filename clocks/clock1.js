@@ -9,8 +9,9 @@
   const offscreenCache = {};
   const colorCache = {};
 
+  // 【調整】傾きの変化が美しく引き立つよう、ランダム角度を -10度 〜 +10度 の範囲に調整
   function getRandomRotation() {
-    const degrees = Math.floor(Math.random() * 11) - 5; 
+    const degrees = Math.floor(Math.random() * 21) - 10; 
     return degrees * (Math.PI / 180);
   }
 
@@ -133,6 +134,7 @@
     const minuteKey = `${hh}:${mm}`;
     const nowMs = now.getTime();
 
+    // 初回起動時の角度設定
     if (!state.chars) {
       state.chars = chars.slice();
       state.minuteKey = minuteKey;
@@ -144,6 +146,7 @@
       ];
     }
 
+    // 【動的更新】1分経ち「時：分」が変化した瞬間に、4つの数字の角度をすべて新しくランダム生成し直す
     if (state.minuteKey !== minuteKey) {
       state.minuteKey = minuteKey;
       state.rotations = [
@@ -160,6 +163,10 @@
     });
 
     const family = opts.fontFamily || '"Fredoka","M PLUS Rounded 1c","Nunito",sans-serif';
+    
+    // フォント1（Quicksand-Bold）が選択されているかを判定
+    const isFont1 = (family === '"font-1"' || family === 'font-1');
+
     const primary = typeof paint === "string" ? paint : "#69f7ff";
     const secondary = lighten(primary, 0.55);
 
@@ -171,8 +178,9 @@
     const widths = chars.map((c) => ctx.measureText(c).width);
     ctx.restore();
 
-    const gap = fontSize * 0.18;
-    const overlapAmt = fontSize * 0.18;
+    // 【条件分岐】フォント1のときは重なり（overlapAmt）あり、それ以外は重ねず等間隔に配置
+    const overlapAmt = isFont1 ? (fontSize * 0.18) : 0;
+    const gap = isFont1 ? (fontSize * 0.18) : (fontSize * 0.35); // フォント1以外はコロンを描画するため広めの余白を確保
     const total = widths[0] + widths[1] + widths[2] + widths[3] - overlapAmt * 3 + gap;
 
     let x = Math.round((pw - total) / 2);
@@ -197,55 +205,72 @@
       charScreens.push(cv);
     }
 
-    const overlapColor = lighten(primary, 0.82);
-
-    function makeOverlapMask(maskKey, canvasA, canvasB) {
-      const { canvas: mv, ctx: mc } = getOffscreen(maskKey, pw, ph);
-      mc.drawImage(canvasA, 0, 0);
-      mc.globalCompositeOperation = "source-in";
-      mc.drawImage(canvasB, 0, 0);
-      mc.globalCompositeOperation = "source-over";
-      return mv;
-    }
-
-    function makeOverlapOverlay(overlayKey, maskCanvas) {
-      const { canvas: ov, ctx: oc } = getOffscreen(overlayKey, pw, ph);
-      oc.drawImage(maskCanvas, 0, 0);
-      oc.globalCompositeOperation = "source-in";
-      oc.fillStyle = overlapColor;
-      oc.fillRect(0, 0, pw, ph);
-      oc.globalCompositeOperation = "source-over";
-      return ov;
-    }
-
-    const mask01 = makeOverlapMask("mask01", charScreens[0], charScreens[1]);
-    const mask23 = makeOverlapMask("mask23", charScreens[2], charScreens[3]);
-    const overlay01 = makeOverlapOverlay("ov01", mask01);
-    const overlay23 = makeOverlapOverlay("ov23", mask23);
-
     const { canvas: compCv, ctx: compCtx } = getOffscreen("composite", pw, ph);
 
-    for (let i = 0; i < 4; i++) {
-      compCtx.drawImage(charScreens[i], 0, 0);
+    if (isFont1) {
+      // ■ フォント1：従来の美しい重なりマスククリッピング ＋ 自作の二重円丸ドット
+      const overlapColor = lighten(primary, 0.82);
+
+      function makeOverlapMask(maskKey, canvasA, canvasB) {
+        const { canvas: mv, ctx: mc } = getOffscreen(maskKey, pw, ph);
+        mc.drawImage(canvasA, 0, 0);
+        mc.globalCompositeOperation = "source-in";
+        mc.drawImage(canvasB, 0, 0);
+        mc.globalCompositeOperation = "source-over";
+        return mv;
+      }
+
+      function makeOverlapOverlay(overlayKey, maskCanvas) {
+        const { canvas: ov, ctx: oc } = getOffscreen(overlayKey, pw, ph);
+        oc.drawImage(maskCanvas, 0, 0);
+        oc.globalCompositeOperation = "source-in";
+        oc.fillStyle = overlapColor;
+        oc.fillRect(0, 0, pw, ph);
+        oc.globalCompositeOperation = "source-over";
+        return ov;
+      }
+
+      const mask01 = makeOverlapMask("mask01", charScreens[0], charScreens[1]);
+      const mask23 = makeOverlapMask("mask23", charScreens[2], charScreens[3]);
+      const overlay01 = makeOverlapOverlay("ov01", mask01);
+      const overlay23 = makeOverlapOverlay("ov23", mask23);
+
+      for (let i = 0; i < 4; i++) {
+        compCtx.drawImage(charScreens[i], 0, 0);
+      }
+      compCtx.drawImage(overlay01, 0, 0);
+      compCtx.drawImage(overlay23, 0, 0);
+
+      const cx = Math.round((positions[1] + positions[2]) / 2);
+      const dotR = Math.round(Math.max(7 * (window.devicePixelRatio || 1), fontSize * 0.08));
+
+      compCtx.save();
+      compCtx.fillStyle = opts.colonColor || "white";
+      compCtx.globalAlpha = 0.85;
+
+      compCtx.beginPath();
+      compCtx.arc(cx, Math.round(y - fontSize * 0.18), dotR, 0, Math.PI * 2);
+      compCtx.fill();
+
+      compCtx.beginPath();
+      compCtx.arc(cx, Math.round(y + fontSize * 0.18), dotR, 0, Math.PI * 2);
+      compCtx.fill();
+      compCtx.restore();
+    } else {
+      // ■ フォント1以外：等間隔（重なりなし） ＋ 各フォント固有デザインの「:」
+      for (let i = 0; i < 4; i++) {
+        compCtx.drawImage(charScreens[i], 0, 0);
+      }
+
+      const cx = Math.round((positions[1] + positions[2]) / 2);
+      compCtx.save();
+      compCtx.fillStyle = opts.colonColor || "white";
+      compCtx.textAlign = "center";
+      compCtx.textBaseline = "middle";
+      compCtx.font = `800 ${fontSize * 0.9}px ${family}`;
+      compCtx.fillText(":", cx, y - fontSize * 0.02);
+      compCtx.restore();
     }
-    compCtx.drawImage(overlay01, 0, 0);
-    compCtx.drawImage(overlay23, 0, 0);
-
-    const cx = Math.round((positions[1] + positions[2]) / 2);
-    const dotR = Math.round(Math.max(7 * (window.devicePixelRatio || 1), fontSize * 0.08));
-
-    compCtx.save();
-    compCtx.fillStyle = opts.colonColor || "white";
-    compCtx.globalAlpha = 0.85;
-
-    compCtx.beginPath();
-    compCtx.arc(cx, Math.round(y - fontSize * 0.18), dotR, 0, Math.PI * 2);
-    compCtx.fill();
-
-    compCtx.beginPath();
-    compCtx.arc(cx, Math.round(y + fontSize * 0.18), dotR, 0, Math.PI * 2);
-    compCtx.fill();
-    compCtx.restore();
 
     ctx.save();
     ctx.imageSmoothingEnabled = false;
