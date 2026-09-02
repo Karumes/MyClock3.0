@@ -129,7 +129,6 @@ button {
   display: block;
 }
 
-/* テレビなどの超大画面でカードが伸びすぎないよう、レスポンシブでグリッド幅を制限して中央揃えにします */
 .clock-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 400px));
@@ -177,10 +176,9 @@ button {
   inset: 0;
   z-index: 30;
   background: #000000;
-  overflow: hidden; /* スマートフォンのアドレスバー増減に伴う不要なバウンス（スクロール）を防止 */
+  overflow: hidden; 
 }
 
-/* 【重要】100vw/100vh はアドレスバー変化時に画面を縦に潰してしまうため、親に完全フィット（100%）するよう修正 */
 #clockCanvas {
   width: 100%;
   height: 100%;
@@ -759,9 +757,6 @@ button {
   display: none !important;
 }
 
-/* ==========================================================================
-   スマートフォン/縦画面向けの完全レスポンシブ・スタイル
-   ========================================================================== */
 @media (max-width: 480px) {
   .platform-shell {
     padding: 16px 16px 44px;
@@ -779,13 +774,11 @@ button {
     max-width: 130px;
   }
 
-  /* スマホ縦画面ではカードを1列で表示 */
   .clock-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
 
-  /* コントロールボタンをスマホ用に親指が届く下部中央へ寄せる */
   .saver-actions {
     top: auto !important;
     bottom: 24px !important;
@@ -794,7 +787,6 @@ button {
     gap: 16px;
   }
 
-  /* 設定パネルをスマホのボトムシート形式（下からスライドイン）へ変形 */
   .settings-panel {
     top: auto !important;
     bottom: 12px !important;

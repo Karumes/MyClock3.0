@@ -9,7 +9,6 @@
   const offscreenCache = {};
   const colorCache = {};
 
-  // 【調整】傾きの変化が美しく引き立つよう、ランダム角度を -10度 〜 +10度 の範囲に調整
   function getRandomRotation() {
     const degrees = Math.floor(Math.random() * 21) - 10; 
     return degrees * (Math.PI / 180);
@@ -134,7 +133,6 @@
     const minuteKey = `${hh}:${mm}`;
     const nowMs = now.getTime();
 
-    // 初回起動時の角度設定
     if (!state.chars) {
       state.chars = chars.slice();
       state.minuteKey = minuteKey;
@@ -146,7 +144,6 @@
       ];
     }
 
-    // 【動的更新】1分経ち「時：分」が変化した瞬間に、4つの数字の角度をすべて新しくランダム生成し直す
     if (state.minuteKey !== minuteKey) {
       state.minuteKey = minuteKey;
       state.rotations = [
@@ -164,7 +161,6 @@
 
     const family = opts.fontFamily || '"Fredoka","M PLUS Rounded 1c","Nunito",sans-serif';
     
-    // フォント1（Quicksand-Bold）が選択されているかを判定
     const isFont1 = (family === '"font-1"' || family === 'font-1');
 
     const primary = typeof paint === "string" ? paint : "#69f7ff";
@@ -178,9 +174,8 @@
     const widths = chars.map((c) => ctx.measureText(c).width);
     ctx.restore();
 
-    // 【条件分岐】フォント1のときは重なり（overlapAmt）あり、それ以外は重ねず等間隔に配置
     const overlapAmt = isFont1 ? (fontSize * 0.18) : 0;
-    const gap = isFont1 ? (fontSize * 0.18) : (fontSize * 0.35); // フォント1以外はコロンを描画するため広めの余白を確保
+    const gap = isFont1 ? (fontSize * 0.18) : (fontSize * 0.35); 
     const total = widths[0] + widths[1] + widths[2] + widths[3] - overlapAmt * 3 + gap;
 
     let x = Math.round((pw - total) / 2);
@@ -208,7 +203,6 @@
     const { canvas: compCv, ctx: compCtx } = getOffscreen("composite", pw, ph);
 
     if (isFont1) {
-      // ■ フォント1：従来の美しい重なりマスククリッピング ＋ 自作の二重円丸ドット
       const overlapColor = lighten(primary, 0.82);
 
       function makeOverlapMask(maskKey, canvasA, canvasB) {
@@ -257,7 +251,6 @@
       compCtx.fill();
       compCtx.restore();
     } else {
-      // ■ フォント1以外：等間隔（重なりなし） ＋ 各フォント固有デザインの「:」
       for (let i = 0; i < 4; i++) {
         compCtx.drawImage(charScreens[i], 0, 0);
       }

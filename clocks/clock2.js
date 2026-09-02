@@ -27,6 +27,11 @@
     }
   }
 
+  let lastMinute = -1;
+  let waveTransitionStart = 0;
+  let fromMinute = 0;
+  let toMinute = 0;
+
   function drawContinuousColumn(ctx, x, y, digitHeight, color, fontSize, family, now, columnIndex, canvasHeight) {
     ctx.save();
     ctx.translate(x, y); 
@@ -187,8 +192,25 @@
     const startX = Math.floor(w / 2 - totalWidth / 2);
     const centerY = h / 2;
     const nowMs = now.getTime();
+    const currentMinute = now.getMinutes();
     const animDuration = 520;
     const sizeScale = options.sizeScale || 1;
+
+    if (lastMinute === -1) {
+      lastMinute = currentMinute;
+      fromMinute = currentMinute;
+      toMinute = currentMinute;
+    }
+    if (lastMinute !== currentMinute) {
+      fromMinute = lastMinute;
+      toMinute = currentMinute;
+      lastMinute = currentMinute;
+      waveTransitionStart = nowMs; 
+    }
+
+    const elapsed = nowMs - waveTransitionStart;
+    const waveProgress = Math.min(1, elapsed / 800); 
+    const easedWaveProgress = easeOutCubic(waveProgress);
 
     const xForIndex = (index) => {
       const pairIndex = Math.floor(index / 2);
@@ -200,11 +222,16 @@
     const colon1X = (xForIndex(1) + xForIndex(2)) / 2;
     const colon2X = (xForIndex(3) + xForIndex(4)) / 2;
 
-    // 【修正】options.showWave がオフ（false）の時は、即座にオフセット 0 を返して直列に整列
     const getWaveOffset = (colIndex) => {
       if (colIndex >= 5 || !options.showWave) return 0; 
-      const wavePhase = now.getMinutes() * 1.15; 
-      return Math.sin((colIndex * 1.25) + wavePhase) * (fontSize * 0.22); 
+      
+      const oldPhase = fromMinute * 1.15;
+      const oldOffset = Math.sin((colIndex * 1.25) + oldPhase) * (fontSize * 0.22);
+
+      const newPhase = toMinute * 1.15;
+      const newOffset = Math.sin((colIndex * 1.25) + newPhase) * (fontSize * 0.22);
+
+      return oldOffset + (newOffset - oldOffset) * easedWaveProgress;
     };
 
     for (let i = 0; i < digits.length; i += 1) {
