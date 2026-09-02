@@ -32,7 +32,7 @@ const state = {
     color: clock.defaultAccent || "#ffffff",
     colonColor: clock.defaultColon || "#ffffff",
     cardColor: clock.defaultSurface || "#d9dfe8",
-    // 【修正】新キーの font1 にフォールバックを修正
+    // 【修正】古い "rounded" から、正しいキー名 "font1" に修正
     fontFamily: clock.defaultFont || "font1",
     difficulty: clock.defaultDifficulty || "easy",
     sizeScale: clock.defaultSizeScale || 1,
@@ -77,7 +77,7 @@ function updateCompiledOptions(index) {
     colonColor: profile.colonColor,
     circleDigitColor: profile.colonColor,
     cardColor: profile.cardColor,
-    // 【修正】新キーの fontFamilies.font1 にフォールバックを修正
+    // 【修正】古い "fontFamilies.rounded" から、新キー名 "fontFamilies.font1" に修正
     fontFamily: fontFamilies[profile.fontFamily] || fontFamilies.font1,
     mathDifficulty: profile.difficulty,
     sizeScale: profile.sizeScale,
@@ -183,7 +183,7 @@ function drawClockFallback(ctx, w, h, clockName) {
   ctx.fillStyle = "rgba(255,255,255,0.72)";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  // 【修正】新キーの fontFamilies.font2 にフォールバックを修正
+  // 【修正】古い "fontFamilies.modern" から、新キー名 "fontFamilies.font2" に修正
   ctx.font = `700 ${Math.max(18, Math.floor(Math.min(w, h) * 0.055))}px ${fontFamilies.font2}`;
   ctx.fillText(clockName || "Clock", w / 2, h / 2);
   ctx.restore();
