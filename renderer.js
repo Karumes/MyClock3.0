@@ -259,9 +259,8 @@ function renderClock(ctx, canvas, index, now) {
   
   const sizeScale = Number(profile.sizeScale) || 1;
   
-  // 【レスポンシブアスペクト比保護ロジック】
-  // 縦・横どちらか「小さい寸法」をアスペクト比計算の分母に使うことで、
-  // 縦持ちスマホでも真円や時計の形が伸び縮みせず、常に完璧な形状（アスペクト比1:1）を保証します。
+  // 【絶対歪み防止】画面の最小寸法（Math.min）を基準に大きさを算出
+  // これにより、縦画面（スマホ）でも横画面（テレビ）でも絶対にはみ出さず、比率を崩さず完璧にフィットします。
   const referenceDim = 820;
   const currentDim = Math.min(w, h);
   const baseSize = clock.size * (currentDim / referenceDim);
@@ -548,6 +547,24 @@ function syncCustomFormatDropdownUI(val) {
   }
 }
 
+// 【最適化・一元化】AM/PMボタンの状態・クラス制御を1つの関数に完全集約
+// さらに.closestを廃止し、セキュアでピンポイントなdocument.querySelectorでの要素書き換えに修正
+function syncAmPmToggleState(formatVal) {
+  const row = document.querySelector('[data-setting="showAmPm"]');
+  const toggle = row?.querySelector('.toggle-switch');
+  
+  if (formatVal === "12") {
+    ampmToggle.disabled = false;
+    toggle?.classList.remove("disabled-toggle");
+    row?.classList.remove("disabled-row");
+  } else {
+    ampmToggle.checked = false;
+    ampmToggle.disabled = true;
+    toggle?.classList.add("disabled-toggle");
+    row?.classList.add("disabled-row");
+  }
+}
+
 function openSettings() {
   const clock = clocks[state.selected];
   const profile = state.profiles[state.selected];
@@ -569,17 +586,9 @@ function openSettings() {
   formatSelect.value = formatVal;
   syncCustomFormatDropdownUI(formatVal);
 
-  if (formatVal === "12") {
-    ampmToggle.disabled = false;
-    ampmToggle.checked = !!profile.showAmPm;
-    ampmToggle.closest('.toggle-switch')?.classList.remove("disabled-toggle");
-    ampmToggle.closest('[data-setting="showAmPm"]')?.classList.remove("disabled-row");
-  } else {
-    ampmToggle.checked = false;
-    ampmToggle.disabled = true;
-    ampmToggle.closest('.toggle-switch')?.classList.add("disabled-toggle");
-    ampmToggle.closest('[data-setting="showAmPm"]')?.classList.add("disabled-row");
-  }
+  // トグルのチェック状態を復元した上で、共通同期関数を呼び出し
+  ampmToggle.checked = !!profile.showAmPm;
+  syncAmPmToggleState(formatVal);
 
   dateToggle.checked = !!profile.showDate;
   dayToggle.checked = !!profile.showDay;
@@ -776,16 +785,8 @@ function initEvents() {
         customFormatOptions.classList.add("hidden");
         customFormatTrigger.classList.remove("active");
         
-        if (val === "24") {
-          ampmToggle.checked = false;
-          ampmToggle.disabled = true;
-          ampmToggle.closest('.toggle-switch')?.classList.add("disabled-toggle");
-          ampmToggle.closest('[data-setting="showAmPm"]')?.classList.add("disabled-row");
-        } else {
-          ampmToggle.disabled = false;
-          ampmToggle.closest('.toggle-switch')?.classList.remove("disabled-toggle");
-          ampmToggle.closest('[data-setting="showAmPm"]')?.classList.add("disabled-row");
-        }
+        // 【修正】ドロップダウン選択時に、共通同期関数を1ミリ秒の遅延もなく即座に実行
+        syncAmPmToggleState(val);
 
         updateProfileFromControls();
       });
