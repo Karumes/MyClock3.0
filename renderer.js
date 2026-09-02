@@ -223,6 +223,7 @@ function ensureRendererLoaded(rendererName) {
     renderClock7: 'clocks/clock7.js',
     renderClock8: 'clocks/clock8.js',
     renderClock9: 'clocks/clock9.js',
+    renderClock10: 'clocks/clock10.js',
   };
   
   const filePath = rendererMap[rendererName];

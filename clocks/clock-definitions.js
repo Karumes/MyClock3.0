@@ -128,5 +128,19 @@
       maxSizeScale: 1.4,
       centerZoom: true,
     },
+    {
+      name: "Clock 10",
+      renderer: "renderClock10",
+      previewImage: "clock10.png",
+      size: 320,
+      defaultAccent: "#ffcc00",
+      defaultFont: "font2",
+      hasNumbers: false,
+      controls: ["primary", "font", "size", "hourFormat", "showAmPm", "showDate", "showDay"],
+      defaultSizeScale: 1.6,
+      minSizeScale: 0.5,
+      maxSizeScale: 2.0,
+      centerZoom: true,
+    }
   ];
 })();
