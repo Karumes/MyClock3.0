@@ -259,12 +259,12 @@ function renderClock(ctx, canvas, index, now) {
   
   const sizeScale = Number(profile.sizeScale) || 1;
   
-  // 【修正】画面の最小寸法（Math.min）を基準に大きさを算出
-  // これにより、縦画面（スマホ）でも横画面（テレビ）でも絶対にはみ出さず、比率を崩さず完璧にフィットします。
+  // 【レスポンシブアスペクト比保護ロジック】
+  // 縦・横どちらか「小さい寸法」をアスペクト比計算の分母に使うことで、
+  // 縦持ちスマホでも真円や時計の形が伸び縮みせず、常に完璧な形状（アスペクト比1:1）を保証します。
   const referenceDim = 820;
   const currentDim = Math.min(w, h);
   const baseSize = clock.size * (currentDim / referenceDim);
-  
   const options = profile.compiledOptions || {};
 
   try {
@@ -644,9 +644,12 @@ function updateProfileFromControls() {
   syncSwatchState();
 }
 
+// 【絶対歪み防止】スマホ縦画面などでのアドレスバー伸縮による比率の歪みを防ぐため、
+// BoundingClientRectを使ってCSSの表示サイズ（100%表示）とピクセル解像度を完全に同期させます。
 function resizeMainCanvas() {
-  mainCanvas.width = Math.floor(window.innerWidth * window.devicePixelRatio);
-  mainCanvas.height = Math.floor(window.innerHeight * window.devicePixelRatio);
+  const rect = mainCanvas.getBoundingClientRect();
+  mainCanvas.width = Math.floor(rect.width * window.devicePixelRatio);
+  mainCanvas.height = Math.floor(rect.height * window.devicePixelRatio);
   lastMin = -1;
   lastSec = -1;
 }

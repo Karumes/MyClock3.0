@@ -21,10 +21,8 @@ html,
 body {
   width: 100%;
   height: 100%;
-}
-
-body {
   margin: 0;
+  padding: 0;
   overflow: hidden;
   background: #000000;
   color: var(--ink);
@@ -131,9 +129,11 @@ button {
   display: block;
 }
 
+/* テレビなどの超大画面でカードが伸びすぎないよう、レスポンシブでグリッド幅を制限して中央揃えにします */
 .clock-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 400px));
+  justify-content: center;
   gap: clamp(16px, 2vw, 28px);
   padding-bottom: 24px;
 }
@@ -177,11 +177,13 @@ button {
   inset: 0;
   z-index: 30;
   background: #000000;
+  overflow: hidden; /* スマートフォンのアドレスバー増減に伴う不要なバウンス（スクロール）を防止 */
 }
 
+/* 【重要】100vw/100vh はアドレスバー変化時に画面を縦に潰してしまうため、親に完全フィット（100%）するよう修正 */
 #clockCanvas {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: block;
 }
 
@@ -562,11 +564,6 @@ button {
   transition: all 180ms ease;
 }
 
-.settings-panel .custom-select-wrapper select:hover {
-  border-color: rgba(105, 247, 255, 0.62);
-  background: rgba(255, 255, 255, 0.14);
-}
-
 .custom-select-wrapper {
   position: relative;
   width: 150px !important;     
@@ -752,7 +749,6 @@ button {
 .toggle-switch.disabled-toggle .toggle-slider {
   background-color: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
-  cursor: not-allowed !important;
 }
 
 .toggle-switch.disabled-toggle .toggle-slider:before {
@@ -763,29 +759,75 @@ button {
   display: none !important;
 }
 
-@media (max-width: 1060px) {
-  .clock-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 680px) {
+/* ==========================================================================
+   スマートフォン/縦画面向けの完全レスポンシブ・スタイル
+   ========================================================================== */
+@media (max-width: 480px) {
   .platform-shell {
-    padding: 18px 14px 44px;
+    padding: 16px 16px 44px;
   }
 
   .topbar {
-    align-items: flex-start;
-    gap: 12px;
-    flex-wrap: wrap;
+    padding: 8px 0 14px;
   }
 
+  .brand-mark {
+    height: 40px;
+  }
+
+  .brand-mark img {
+    max-width: 130px;
+  }
+
+  /* スマホ縦画面ではカードを1列で表示 */
   .clock-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .settings-grid {
-    grid-template-columns: 1fr;
+  /* コントロールボタンをスマホ用に親指が届く下部中央へ寄せる */
+  .saver-actions {
+    top: auto !important;
+    bottom: 24px !important;
+    right: 50% !important;
+    transform: translateX(50%) !important;
+    gap: 16px;
+  }
+
+  /* 設定パネルをスマホのボトムシート形式（下からスライドイン）へ変形 */
+  .settings-panel {
+    top: auto !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    border-radius: 20px !important;
+    max-height: 75vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
+  }
+
+  .settings-color, .settings-row {
+    padding: 8px 12px;
+    height: auto;
+    min-height: 52px;
+    border-radius: 12px;
+  }
+
+  .custom-select-wrapper, .settings-panel input[type="range"] {
+    width: 130px !important;
+    min-width: 130px !important;
+  }
+
+  .color-swatches {
+    gap: 4px;
+  }
+
+  .settings-panel .color-swatch {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
   }
 }
 
