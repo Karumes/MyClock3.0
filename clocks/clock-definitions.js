@@ -136,10 +136,10 @@
       defaultAccent: "#ffcc00",
       defaultFont: "font2",
       hasNumbers: false,
-      controls: ["primary", "font", "size", "hourFormat", "showAmPm", "showDate", "showDay"],
-      defaultSizeScale: 1.6,
+      controls: ["primary", "font", "size", "hourFormat", "showAmPm", "showDate", "showDay", "showDigital"],
+      defaultSizeScale: 1.8,
       minSizeScale: 0.5,
-      maxSizeScale: 2.0,
+      maxSizeScale: 2.7,
       centerZoom: true,
     }
   ];

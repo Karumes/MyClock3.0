@@ -41,6 +41,7 @@ const state = {
     showDay: false,
     showSeconds: true,
     showMidline: true,
+    showDigital: true,
     showWave: true, 
     compiledOptions: null,
   })),
@@ -87,6 +88,7 @@ function updateCompiledOptions(index) {
     showSeconds: profile.showSeconds !== false,
     showMidline: profile.showMidline !== false,
     showWave: profile.showWave !== false,
+    showDigital: profile.showDigital !== false, 
     clock6Speed: 0.42,
     fontMode: "solid",
   };
@@ -160,7 +162,7 @@ const dateToggle = document.getElementById("date-toggle");
 const dayToggle = document.getElementById("day-toggle");
 const secondsToggle = document.getElementById("seconds-toggle");
 const midlineToggle = document.getElementById("midline-toggle");
-
+const digitalToggle = document.getElementById("digital-toggle"); 
 const waveToggle = document.getElementById("wave-toggle");
 const sizeScaleInput = document.getElementById("clock-size-scale");
 const renderErrors = new Set();
@@ -601,6 +603,9 @@ function openSettings() {
   if (waveToggle) {
     waveToggle.checked = profile.showWave !== false;
   }
+  if (digitalToggle) {
+    digitalToggle.checked = profile.showDigital !== false; 
+  }
 
   if (sizeScaleInput) {
     sizeScaleInput.setAttribute("min", String(minSize));
@@ -648,6 +653,9 @@ function updateProfileFromControls() {
   }
   if (waveToggle) {
     profile.showWave = waveToggle.checked;
+  }
+  if (digitalToggle) {
+    digitalToggle.checked = profile.showDigital !== false; 
   }
   profile.sizeScale = Number(sizeScaleInput.value);
   
@@ -805,7 +813,7 @@ function initEvents() {
     if (customFormatTrigger) customFormatTrigger.classList.remove("active");
   });
   
-  [fontInput, colonInput, cardInput, fontSelect, difficultySelect, sizeScaleInput, formatSelect, ampmToggle, dateToggle, dayToggle, secondsToggle, midlineToggle, waveToggle].forEach((input) => {
+  [fontInput, colonInput, cardInput, fontSelect, difficultySelect, sizeScaleInput, formatSelect, ampmToggle, dateToggle, dayToggle, secondsToggle, midlineToggle, waveToggle, digitalToggle].forEach((input) => {
     if (input) {
       input.addEventListener("input", updateProfileFromControls);
       input.addEventListener("change", updateProfileFromControls);
@@ -829,6 +837,8 @@ function initEvents() {
   });
 }
 
+// (上部コード省略。最下部の init 関数のみ、事前読み込み処理を追加しています)
+
 async function init() {
   await loadSettings();
   
@@ -842,6 +852,10 @@ async function init() {
   buildColorSwatches();
   buildGrid();
   initEvents();
+  
+  // 【重要】起動時のライブラリ画面（グリッド）ロード中に、Clock 10のプログラムと画像を裏側で完全読み込み完了させる
+  ensureRendererLoaded("renderClock10");
+
   resizeMainCanvas();
   setSection("library");
   

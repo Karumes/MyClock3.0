@@ -23,8 +23,7 @@
     dialImg.onload = onLoaded;
   }
 
-  // 【重要】スクリプトが読み込まれた瞬間にバックグラウンドで画像ダウンロードを先行開始
-  // これにより、起動時や切り替え時の一瞬の「Loading...」というチラつきが完全に消滅します。
+  // 起動時のバックグラウンド先行ロード
   loadImages();
 
   function drawDateAndDay(ctx, size, now, opts, color, family) {
@@ -55,10 +54,8 @@
     now = now || new Date();
     opts = opts || {};
 
-    // 万が一の読み込み漏れに備えるフォールバック
     loadImages();
 
-    // 先行ロードのおかげで、通常ここは一瞬でスキップされ直接描画に入ります
     if (!imagesLoaded) {
       ctx.save();
       ctx.fillStyle = paint || "#ffffff";
@@ -74,6 +71,15 @@
     const cy = h / 2;
     const family = opts.fontFamily || '"Segoe UI", sans-serif';
 
+    // デジタル時計表示のトグル状態（デフォルトはtrue）
+    const showDigital = opts.showDigital !== false;
+
+    // 【オートリバランス機能】
+    // デジタル時計・日付・曜日のすべてが表示オフの場合、懐中時計本体を完全に画面中央（offset=0）に自動配置。
+    // 何かしらの文字が表示されている時のみ、下部スペースを確保するために少し上に寄せます。
+    const hasTextBelow = showDigital || opts.showDate || opts.showDay;
+    const watchYOffset = hasTextBelow ? -size * 0.08 : 0;
+
     // 24時間に基づき、円盤の回転角度を精密計算
     const hours = now.getHours();
     const minutes = now.getMinutes();
@@ -84,41 +90,59 @@
 
     ctx.save();
     ctx.imageSmoothingEnabled = false; // ドット絵のシャープなピクセル比を絶対維持
-    ctx.translate(cx, cy - size * 0.08); // デジタル表示の余白のため、少し上に中心をずらす
+    ctx.translate(cx, cy + watchYOffset); // オートリバランスを統合した座標に中心を移動
+
+    // 円盤（WHEEL）を完全に水平な中心よりも「ほんの少し下（size * 0.012）」に配置して完璧に位置調整
+    const dialYOffset = size * 0.01; 
 
     // 1. 中の昼夜ダイヤル（円盤）を回転描画
     ctx.save();
+    ctx.translate(0, dialYOffset); // 補正された時計盤の円の中心に原点を移動
     ctx.beginPath();
-    // 【調整】クリッピングサイズを 0.36 から 0.385 に拡張して視野を最大化
-    ctx.arc(0, 0, size * 2, 0, Math.PI * 2); 
+    ctx.arc(0, 0, size * 0.44, 0, Math.PI * 2); 
     ctx.clip();
     ctx.rotate(rotationAngle);
-    // 【調整】ダイヤルの描画サイズを 0.75 から 0.8 に拡張し、金枠のキワまでピッタリ埋めます
-    ctx.drawImage(dialImg, -size * 0.4, -size * 0.4, size * 0.8, size * 0.8);
+    ctx.drawImage(dialImg, -size * 0.47, -size * 0.47, size * 0.94, size * 0.94);
     ctx.restore();
 
     // 2. 金色の懐中時計フレーム
     ctx.drawImage(frameImg, -size * 0.5, -size * 0.5, size, size);
 
-    // 3. 懐中時計の下部にデジタル時計を描画
-    ctx.fillStyle = paint || "#ffffff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.font = `700 ${size * 0.11}px ${family}`;
+    // 【条件分岐：デジタル表示がONのときのみ時計を描画】
+    if (showDigital) {
+      // 3. 懐中時計の下部にデジタル時計を描画
+      ctx.fillStyle = paint || "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.font = `700 ${size * 0.11}px ${family}`;
 
-    let hh = String(now.getHours()).padStart(2, "0");
-    let mm = String(now.getMinutes()).padStart(2, "0");
-    let ss = String(now.getSeconds()).padStart(2, "0");
-    if (opts.hourFormat === "12") {
-      let h12 = now.getHours() % 12;
-      if (h12 === 0) h12 = 12;
-      hh = String(h12).padStart(2, "0");
+      let hh = String(now.getHours()).padStart(2, "0");
+      let mm = String(now.getMinutes()).padStart(2, "0");
+      if (opts.hourFormat === "12") {
+        let h12 = now.getHours() % 12;
+        if (h12 === 0) h12 = 12;
+        hh = String(h12).padStart(2, "0");
+      }
+
+      let timeStr = `${hh} : ${mm}`;
+      ctx.fillText(timeStr, 0, size * 0.58);
+
+      // 4. AM/PMをデジタル時計の左側に配置
+      if (opts.showAmPm && opts.hourFormat === "12") {
+        const ampm = now.getHours() >= 12 ? "PM" : "AM";
+        ctx.save();
+        ctx.fillStyle = paint || "#ffffff";
+        ctx.globalAlpha = 0.65;
+        ctx.font = `700 ${size * 0.055}px ${family}`; 
+        ctx.textAlign = "right"; 
+        ctx.textBaseline = "middle"; 
+        
+        ctx.fillText(ampm, -size * 0.175, size * 0.61);
+        ctx.restore();
+      }
     }
 
-    let timeStr = `${hh}:${mm}:${ss}`;
-    ctx.fillText(timeStr, 0, size * 0.58);
-
-    // 4. 日付・曜日の描画
+    // 5. 日付・曜日の描画（独自の showDate / showDay トグルで判定されます）
     drawDateAndDay(ctx, size, now, opts, paint || "#ffffff", family);
 
     ctx.restore();

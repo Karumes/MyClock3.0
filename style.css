@@ -176,7 +176,7 @@ button {
   inset: 0;
   z-index: 30;
   background: #000000;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 #clockCanvas {
@@ -236,8 +236,7 @@ button {
   transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease !important;
 }
 
-#home-btn::before,
-#home-btn::after,
+/* 【修正】#home-btn（戻る）からクロス線の記述を除外し、設定閉じるボタン（#close-settings）専用に分離 */
 #close-settings::before,
 #close-settings::after {
   content: "";
@@ -251,25 +250,33 @@ button {
   transition: background-color 180ms ease;
 }
 
-#home-btn::before,
 #close-settings::before {
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
-#home-btn::after,
 #close-settings::after {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-#home-btn:hover,
+/* 【修正】ホームボタン（#home-btn）内の画像の基本サイズ（settingと同じ20px）を設定 */
+#home-btn img {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain;
+  pointer-events: none; 
+}
+
+/* 【修正】ホバー時の90度回転エフェクトを、クローズボタン（#close-settings）だけに変更（ホームは回転しない） */
 #close-settings:hover {
   transform: rotate(90deg) !important;
+}
+
+#home-btn:hover,
+#close-settings:hover {
   border-color: rgba(105, 247, 255, 0.52) !important;
   background: rgba(255, 255, 255, 0.14) !important;
 }
 
-#home-btn:hover::before,
-#home-btn:hover::after,
 #close-settings:hover::before,
 #close-settings:hover::after {
   background-color: #ffffff;
@@ -514,7 +521,6 @@ button {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   outline: none;
-  transition: background 150ms ease;
 }
 
 .settings-panel input[type="range"]::-webkit-slider-thumb {
@@ -526,17 +532,6 @@ button {
   background: #ffffff;
   border: 2px solid var(--black);
   cursor: pointer;
-  transition: transform 120ms cubic-bezier(.2,.8,.2,1), background-color 120ms ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-.settings-panel input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  background: var(--cyan);
-}
-
-.settings-panel input[type="range"]::-webkit-slider-thumb:active {
-  transform: scale(0.95);
 }
 
 .settings-panel [data-setting].hidden-setting {
@@ -559,7 +554,6 @@ button {
   outline: none;
   -webkit-appearance: none;
   appearance: none;
-  transition: all 180ms ease;
 }
 
 .custom-select-wrapper {
@@ -581,7 +575,6 @@ button {
   font-weight: 600;
   text-align: left;
   cursor: pointer;
-  transition: all 180ms ease;
   user-select: none;
   display: flex;
   align-items: center;
@@ -595,17 +588,10 @@ button {
   border-right: 2px solid var(--ink);
   border-bottom: 2px solid var(--ink);
   transform: rotate(45deg);
-  transition: transform 180ms ease;
 }
 
 .custom-select-trigger.active::after {
   transform: rotate(-135deg);
-}
-
-.custom-select-trigger:hover {
-  border-color: rgba(105, 247, 255, 0.62);
-  background: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
 }
 
 .custom-select-options {
@@ -624,19 +610,6 @@ button {
   animation: dropdownFadeIn 150ms cubic-bezier(.2,.8,.2,1);
 }
 
-.custom-select-options::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-select-options::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-}
-
-.custom-select-options::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-
 @keyframes dropdownFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
@@ -650,7 +623,6 @@ button {
   font-size: 0.88rem;
   text-align: left;
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
 }
 
 .custom-option:first-child,
@@ -674,21 +646,6 @@ button {
   color: var(--cyan);
 }
 
-.settings-actions {
-  margin-top: 16px;
-  flex-shrink: 0;
-}
-
-.settings-panel button {
-  height: 38px;
-  padding: 0 14px 2px 14px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -708,7 +665,6 @@ button {
   cursor: pointer;
   inset: 0;
   background-color: rgba(255, 255, 255, 0.12);
-  transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 999px;
   border: 1px solid var(--line);
 }
@@ -721,7 +677,6 @@ button {
   left: 3px;
   bottom: 3px;
   background-color: #ffffff;
-  transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 50%;
 }
 
@@ -734,14 +689,10 @@ button {
   transform: translateX(20px);
   background-color: var(--cyan);
 }
+
 .settings-row.disabled-row {
   opacity: 0.45 !important;
   pointer-events: none !important;
-  transition: opacity 220ms ease;
-}
-
-.toggle-switch.disabled-toggle {
-  cursor: not-allowed !important;
 }
 
 .toggle-switch.disabled-toggle .toggle-slider {
@@ -757,6 +708,9 @@ button {
   display: none !important;
 }
 
+/* ==========================================================================
+   モバイル(スマートフォン)用：縦画面レスポンシブ
+   ========================================================================== */
 @media (max-width: 480px) {
   .platform-shell {
     padding: 16px 16px 44px;
@@ -821,70 +775,4 @@ button {
     min-width: 24px;
     min-height: 24px;
   }
-}
-
-@font-face {
-  font-family: 'font-1';
-  src: url('fonts/Quicksand-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'font-2';
-  src: url('fonts/Segoe UI Bold.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'font-3';
-  src: url('fonts/Poppins-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'font-4';
-  src: url('fonts/Oswald-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'font-5';
-  src: url('fonts/Scrapitup-EEK4.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'font-6';
-  src: url('fonts/Kbsticktoit-vJ3M.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'font-7';
-  src: url('fonts/GamjaFlower-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'font-8';
-  src: url('fonts/CupcakePartyDemo-46xK.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'font-9';
-  src: url('fonts/OblataDisplayRegular-Zp8o8.otf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
 }

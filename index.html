@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Karumes</title>
+  <link rel="preload" href="frame.png" as="image" />
+  <link rel="preload" href="wheel.png" as="image" />
   <link rel="preload" href="fonts/Quicksand-Bold.ttf" as="font" type="font/truetype" crossorigin />
   <link rel="preload" href="fonts/Segoe UI Bold.ttf" as="font" type="font/truetype" crossorigin />
   <link rel="preload" href="fonts/Poppins-Regular.ttf" as="font" type="font/truetype" crossorigin />
@@ -32,7 +34,9 @@
   <section id="saver" class="saver hidden" aria-label="Selected clock">
     <canvas id="clockCanvas"></canvas>
     <div id="saver-actions" class="saver-actions">
-      <button id="home-btn" type="button" aria-label="Back to Karumes"></button>
+      <button id="home-btn" type="button" aria-label="Back to Karumes">
+        <img src="home.png" alt="Home">
+      </button>
       <button id="settings-btn" type="button" aria-label="Customize clock">
         <img src="setting.png" alt="Settings">
       </button>
@@ -150,6 +154,14 @@
       <span>Show Seconds</span>
       <label class="toggle-switch">
         <input type="checkbox" id="seconds-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    div class="settings-row" data-setting="showDigital">
+      <span>Show Digital</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="digital-toggle" />
         <span class="toggle-slider"></span>
       </label>
     </div>
