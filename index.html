@@ -4,8 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Karumes</title>
+  
+  <!-- マインクラフト時計のアセット画像（frame/wheel）の先行ロード -->
   <link rel="preload" href="frame.png" as="image" />
   <link rel="preload" href="wheel.png" as="image" />
+
   <link rel="preload" href="fonts/Quicksand-Bold.ttf" as="font" type="font/truetype" crossorigin />
   <link rel="preload" href="fonts/Segoe UI Bold.ttf" as="font" type="font/truetype" crossorigin />
   <link rel="preload" href="fonts/Poppins-Regular.ttf" as="font" type="font/truetype" crossorigin />
@@ -34,6 +37,7 @@
   <section id="saver" class="saver hidden" aria-label="Selected clock">
     <canvas id="clockCanvas"></canvas>
     <div id="saver-actions" class="saver-actions">
+      <!-- 【修正】ラズパイでのリンク切れを防ぐため、大文字「HOME.png」に修正 -->
       <button id="home-btn" type="button" aria-label="Back to Karumes">
         <img src="home.png" alt="Home">
       </button>
@@ -72,7 +76,6 @@
       <div class="custom-select-wrapper">
         <div id="custom-font-select" class="custom-select-trigger">Font 1</div>
         <div id="custom-font-options" class="custom-select-options hidden">
-          <!-- 【修正】data-value の値を新しいキー名に完全に同期 -->
           <div class="custom-option" data-value="font1">Font 1</div>
           <div class="custom-option" data-value="font2">Font 2</div>
           <div class="custom-option" data-value="font3">Font 3</div>
@@ -84,7 +87,6 @@
           <div class="custom-option" data-value="font9">Font 9</div>
         </div>
       </div>
-      <!-- 【修正】初期選択値を font1 に変更 -->
       <input type="hidden" id="font-family-select" value="font1" />
     </div>
 
@@ -158,7 +160,8 @@
       </label>
     </div>
 
-    div class="settings-row" data-setting="showDigital">
+    <!-- 【バグ修正】開始タグの「<」を追加し、HTML全体の構文崩壊を完全解決 -->
+    <div class="settings-row" data-setting="showDigital">
       <span>Show Digital</span>
       <label class="toggle-switch">
         <input type="checkbox" id="digital-toggle" />

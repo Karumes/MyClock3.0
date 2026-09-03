@@ -41,8 +41,8 @@ const state = {
     showDay: false,
     showSeconds: true,
     showMidline: true,
-    showDigital: true,
-    showWave: true, 
+    showWave: true,      // 【新規追加】波の状態の初期値
+    showDigital: false,   // 【新規追加】デジタル表示の状態の初期値
     compiledOptions: null,
   })),
 };
@@ -87,8 +87,8 @@ function updateCompiledOptions(index) {
     showDay: !!profile.showDay,
     showSeconds: profile.showSeconds !== false,
     showMidline: profile.showMidline !== false,
-    showWave: profile.showWave !== false,
-    showDigital: profile.showDigital !== false, 
+    showWave: profile.showWave !== false,       // 【新規追加】オプションに波の状態を追加
+    showDigital: profile.showDigital !== false, // 【新規追加】オプションにデジタル表示の状態を追加
     clock6Speed: 0.42,
     fontMode: "solid",
   };
@@ -162,6 +162,7 @@ const dateToggle = document.getElementById("date-toggle");
 const dayToggle = document.getElementById("day-toggle");
 const secondsToggle = document.getElementById("seconds-toggle");
 const midlineToggle = document.getElementById("midline-toggle");
+// 【新規取得】JavaScript側でスイッチ要素を取得
 const digitalToggle = document.getElementById("digital-toggle"); 
 const waveToggle = document.getElementById("wave-toggle");
 const sizeScaleInput = document.getElementById("clock-size-scale");
@@ -266,6 +267,7 @@ function renderClock(ctx, canvas, index, now) {
   
   const sizeScale = Number(profile.sizeScale) || 1;
   
+  // 【絶対歪み防止】画面の最小寸法（Math.min）を基準に大きさを算出
   const referenceDim = 820;
   const currentDim = Math.min(w, h);
   const baseSize = clock.size * (currentDim / referenceDim);
@@ -552,6 +554,7 @@ function syncCustomFormatDropdownUI(val) {
   }
 }
 
+// 【絶対歪み・バグ防止】AM/PMトグルの状態・クラス制御を1つの関数に完全集約
 function syncAmPmToggleState(formatVal) {
   const row = document.querySelector('[data-setting="showAmPm"]');
   const toggle = row?.querySelector('.toggle-switch');
@@ -589,6 +592,7 @@ function openSettings() {
   formatSelect.value = formatVal;
   syncCustomFormatDropdownUI(formatVal);
 
+  // トグルのチェック状態を復元した上で、共通同期関数を呼び出し
   ampmToggle.checked = !!profile.showAmPm;
   syncAmPmToggleState(formatVal);
 
@@ -600,9 +604,11 @@ function openSettings() {
   if (midlineToggle) {
     midlineToggle.checked = profile.showMidline !== false;
   }
+  // 【重要】設定を開いた瞬間のトグルのチェック状態を復元
   if (waveToggle) {
     waveToggle.checked = profile.showWave !== false;
   }
+  // 【修正】新コントロール「showDigital」のトグルチェック状態を復元
   if (digitalToggle) {
     digitalToggle.checked = profile.showDigital !== false; 
   }
@@ -651,11 +657,13 @@ function updateProfileFromControls() {
   if (midlineToggle) {
     profile.showMidline = midlineToggle.checked;
   }
+  // 【重要】UIから波打ち（showWave）のトグル値を読み込んでプロファイルに反映
   if (waveToggle) {
     profile.showWave = waveToggle.checked;
   }
+  // 【修正】UIから「showDigital」のトグル値を読み込んでプロファイルに反映
   if (digitalToggle) {
-    digitalToggle.checked = profile.showDigital !== false; 
+    profile.showDigital = digitalToggle.checked; 
   }
   profile.sizeScale = Number(sizeScaleInput.value);
   
@@ -667,6 +675,8 @@ function updateProfileFromControls() {
   syncSwatchState();
 }
 
+// 【絶対歪み防止】スマホ縦画面などでのアドレスバー伸縮による比率の歪みを防ぐため、
+// BoundingClientRectを使ってCSSの表示サイズ（100%表示）とピクセル解像度を完全に同期させます。
 function resizeMainCanvas() {
   const rect = mainCanvas.getBoundingClientRect();
   mainCanvas.width = Math.floor(rect.width * window.devicePixelRatio);
@@ -797,6 +807,7 @@ function initEvents() {
         customFormatOptions.classList.add("hidden");
         customFormatTrigger.classList.remove("active");
         
+        // 【絶対バグ防止】共通同期関数を即時に実行
         syncAmPmToggleState(val);
 
         updateProfileFromControls();
@@ -813,6 +824,7 @@ function initEvents() {
     if (customFormatTrigger) customFormatTrigger.classList.remove("active");
   });
   
+  // 【重要】波打ち用「waveToggle」、デジタル表記用「digitalToggle」を変更監視対象配列に完全統合
   [fontInput, colonInput, cardInput, fontSelect, difficultySelect, sizeScaleInput, formatSelect, ampmToggle, dateToggle, dayToggle, secondsToggle, midlineToggle, waveToggle, digitalToggle].forEach((input) => {
     if (input) {
       input.addEventListener("input", updateProfileFromControls);
@@ -836,8 +848,6 @@ function initEvents() {
     }, 200);
   });
 }
-
-// (上部コード省略。最下部の init 関数のみ、事前読み込み処理を追加しています)
 
 async function init() {
   await loadSettings();
